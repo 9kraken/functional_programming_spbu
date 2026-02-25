@@ -1,0 +1,233 @@
+{
+  "timestamp": "2026-02-25T17:19:55.005163",
+  "execution_summary": {
+    "total_execution_time": "0.24 сек",
+    "phase1_time": "0.22 сек (загрузка данных)",
+    "phase2_time": "0.01 сек (анализ)",
+    "num_workers": 4,
+    "total_messages_processed": 500
+  },
+  "source_statistics": {
+    "VK": 50,
+    "Telegram": 50,
+    "Facebook": 50,
+    "Instagram": 50,
+    "Twitter": 50,
+    "Reddit": 50,
+    "LinkedIn": 50,
+    "TikTok": 50,
+    "YouTube": 50,
+    "Pinterest": 50
+  },
+  "analysis_results": {
+    "total_messages": 500,
+    "total_words_processed": 3616,
+    "unique_words": 321,
+    "total_hashtags": 1514,
+    "unique_hashtags": 131,
+    "total_engagement": 2940537,
+    "average_engagement_per_message": 5881.074,
+    "top_keywords": [
+      [
+        "новый",
+        67
+      ],
+      [
+        "для",
+        46
+      ],
+      [
+        "мой",
+        43
+      ],
+      [
+        "#learning",
+        32
+      ],
+      [
+        "#travel",
+        27
+      ],
+      [
+        "должны",
+        27
+      ],
+      [
+        "тренды",
+        26
+      ],
+      [
+        "#creative",
+        25
+      ],
+      [
+        "#developer",
+        25
+      ],
+      [
+        "изменения",
+        24
+      ],
+      [
+        "#tech",
+        24
+      ],
+      [
+        "дома",
+        24
+      ],
+      [
+        "#update",
+        23
+      ],
+      [
+        "про",
+        22
+      ],
+      [
+        "видео",
+        22
+      ],
+      [
+        "#coding",
+        22
+      ],
+      [
+        "идеи",
+        22
+      ],
+      [
+        "#fashion",
+        21
+      ],
+      [
+        "#style",
+        21
+      ],
+      [
+        "#review",
+        21
+      ]
+    ],
+    "top_hashtags": [
+      [
+        "#learning",
+        32
+      ],
+      [
+        "#travel",
+        27
+      ],
+      [
+        "#creative",
+        25
+      ],
+      [
+        "#developer",
+        25
+      ],
+      [
+        "#tech",
+        24
+      ],
+      [
+        "#update",
+        23
+      ],
+      [
+        "#coding",
+        22
+      ],
+      [
+        "#fashion",
+        21
+      ],
+      [
+        "#style",
+        21
+      ],
+      [
+        "#review",
+        21
+      ],
+      [
+        "#photo",
+        20
+      ],
+      [
+        "#art",
+        20
+      ],
+      [
+        "#business",
+        20
+      ],
+      [
+        "#trending",
+        20
+      ],
+      [
+        "#ml",
+        18
+      ]
+    ],
+    "source_distribution": {
+      "VK": 50,
+      "Telegram": 50,
+      "Facebook": 50,
+      "Instagram": 50,
+      "Twitter": 50,
+      "Reddit": 50,
+      "LinkedIn": 50,
+      "TikTok": 50,
+      "YouTube": 50,
+      "Pinterest": 50
+    },
+    "source_engagement": {
+      "VK": 267724,
+      "Telegram": 270677,
+      "Facebook": 298360,
+      "Instagram": 294995,
+      "Twitter": 325268,
+      "Reddit": 252709,
+      "LinkedIn": 311298,
+      "TikTok": 346838,
+      "YouTube": 293673,
+      "Pinterest": 278995
+    },
+    "top_sources_by_engagement": [
+      [
+        "TikTok",
+        346838
+      ],
+      [
+        "Twitter",
+        325268
+      ],
+      [
+        "LinkedIn",
+        311298
+      ],
+      [
+        "Facebook",
+        298360
+      ],
+      [
+        "Instagram",
+        294995
+      ]
+    ],
+    "trending_topics": [
+      "новый",
+      "для",
+      "мой",
+      "#learning",
+      "#travel",
+      "должны",
+      "тренды",
+      "#creative",
+      "#developer",
+      "изменения"
+    ]
+  }
+}

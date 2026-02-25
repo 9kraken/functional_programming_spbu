@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рекомендательная система для выбора книг</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Левая панель - форма */
+        .form-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .form-panel h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-control-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85em;
+        }
+
+        /* Правая панель - результаты */
+        .results-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .results-panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .preference-summary {
+            background: #f8f9ff;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-left: 4px solid #c62828;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-left: 4px solid #2e7d32;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        /* Таблица рекомендаций */
+        .recommendations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .recommendations-table thead {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .recommendations-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .recommendations-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .recommendations-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .recommendations-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .book-title {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .score {
+            font-weight: 600;
+            color: #4caf50;
+        }
+
+        .year {
+            color: #999;
+        }
+
+        .genre-badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .keywords {
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        .reading-list-btn {
+            background: #ff9800;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .reading-list-btn:hover {
+            background: #f57c00;
+        }
+
+        .reading-list-btn.added {
+            background: #4caf50;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .no-results-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sort-btn {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sort-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .sort-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .stat-item {
+            font-size: 0.9em;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <header>
+            <h1>📚 Рекомендательная система для выбора книг</h1>
+            <p>Найдите книгу вашей мечты на основе ваших предпочтений</p>
+        </header>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Левая панель: форма -->
+            <div class="form-panel">
+                <h2>Ваши предпочтения</h2>
+
+                <form id="preferencesForm">
+                    <div class="form-group">
+                        <label for="genres">Любимые жанры <small>(через запятую)</small></label>
+                        <input type="text" id="genres" name="genres" placeholder="Например: фантастика, детектив">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authors">Любимые авторы <small>(через запятую)</small></label>
+                        <input type="text" id="authors" name="authors" placeholder="Например: Азимов, Толстой">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="keywords">Ключевые слова <small>(через запятую)</small></label>
+                        <input type="text" id="keywords" name="keywords" placeholder="Например: приключения, любовь">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minYear">Минимальный год публикации</label>
+                        <input type="number" id="minYear" name="min_year" min="0" placeholder="Например: 1950">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sortBy">Сортировка результатов</label>
+                        <select id="sortBy" name="sort_by">
+                            <option value="score">По релевантности</option>
+                            <option value="title">По названию (A-Z)</option>
+                            <option value="year">По году (новые сначала)</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">🔍 Найти рекомендации</button>
+                        <button type="reset" class="btn-secondary">Очистить</button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <button class="btn-secondary" onclick="toggleReadingList()">📖 Мой список (0)</button>
+                    <div id="readingList" style="display: none; margin-top: 15px;">
+                        <div id="readingListContent" style="max-height: 300px; overflow-y: auto;">
+                            <p style="color: #999; font-size: 0.9em;">Ваш список пуст</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая панель: результаты -->
+            <div class="results-panel">
+                <h2>Результаты</h2>
+
+                <div id="stats" class="stats" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalBooks">-</div>
+                        <div class="stat-label">Книг в базе</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalGenres">-</div>
+                        <div class="stat-label">Жанров</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalAuthors">-</div>
+                        <div class="stat-label">Авторов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalKeywords">-</div>
+                        <div class="stat-label">Ключевых слов</div>
+                    </div>
+                </div>
+
+                <div id="resultsContainer">
+                    <p style="color: #999; text-align: center; padding: 40px;">
+                        👈 Заполните форму слева и нажмите "Найти рекомендации"
+                    </p>
+                </div>
+
+                <div id="exportButtons" class="export-buttons" style="display: none;">
+                    <button class="btn-primary btn-small" onclick="saveToCSV()">💾 Сохранить как CSV</button>
+                    <button class="btn-secondary btn-small" onclick="shareResults()">📤 Поделиться</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Подвал -->
+        <footer>
+            <p>Рекомендательная система для выбора книг • Использует функциональное программирование на Python</p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('preferencesForm');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const exportButtons = document.getElementById('exportButtons');
+        const statsPanel = document.getElementById('stats');
+        let currentRecommendations = [];
+        let readingList = JSON.parse(localStorage.getItem('readingList') || '[]');
+
+        // Загружаем статистику
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                document.getElementById('totalBooks').textContent = data.total_books;
+                document.getElementById('totalGenres').textContent = data.total_genres;
+                document.getElementById('totalAuthors').textContent = data.total_authors;
+                document.getElementById('totalKeywords').textContent = data.total_keywords;
+                statsPanel.style.display = 'grid';
+            } catch (error) {
+                console.error('Ошибка при загрузке статистики:', error);
+            }
+        }
+
+        // Обработка формы
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = {
+                genres: formData.get('genres'),
+                authors: formData.get('authors'),
+                keywords: formData.get('keywords'),
+                min_year: formData.get('min_year'),
+                sort_by: formData.get('sort_by')
+            };
+
+            resultsContainer.innerHTML = '<div class="loading">Поиск рекомендаций</div>';
+            exportButtons.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    resultsContainer.innerHTML =
+                        `<div class="error-message">❌ ${result.error}</div>`;
+                    return;
+                }
+
+                currentRecommendations = result.recommendations;
+
+                // Показываем результаты
+                if (currentRecommendations.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="preference-summary">
+                            ${result.preference_summary}
+                        </div>
+                        <div class="no-results">
+                            <div class="no-results-icon">😕</div>
+                            <p>К сожалению, подходящих книг не найдено.</p>
+                            <p style="font-size: 0.9em; margin-top: 10px;">
+                                Попробуйте изменить фильтры и попробовать снова
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    let html = `
+                        <div class="preference-summary">
+                            ✨ ${result.preference_summary}
+                        </div>
+                        <div class="success-message">
+                            ✅ Найдено ${result.count} рекомендаций
+                        </div>
+                        <table class="recommendations-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">#</th>
+                                    <th style="width: 25%">Название</th>
+                                    <th style="width: 15%">Автор</th>
+                                    <th style="width: 15%">Жанр</th>
+                                    <th style="width: 8%">Год</th>
+                                    <th style="width: 10%">Оценка</th>
+                                    <th style="width: 22%">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    currentRecommendations.forEach((book, index) => {
+                        const inList = readingList.some(b => b.id === book.id);
+                        const btnClass = inList ? 'added' : '';
+                        const btnText = inList ? '✓ В списке' : '+ Добавить';
+
+                        html += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td class="book-title">${book.title}</td>
+                                <td>${book.author}</td>
+                                <td><span class="genre-badge">${book.genre}</span></td>
+                                <td class="year">${book.year}</td>
+                                <td class="score">${(book.score * 100).toFixed(0)}%</td>
+                                <td>
+                                    <button class="reading-list-btn ${btnClass}" 
+                                            onclick="toggleReadingListItem(${book.id}, '${book.title}')">
+                                        ${btnText}
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    resultsContainer.innerHTML = html;
+                    exportButtons.style.display = 'flex';
+                }
+
+            } catch (error) {
+                resultsContainer.innerHTML =
+                    `<div class="error-message">❌ Ошибка: ${error.message}</div>`;
+            }
+        });
+
+        // Управление списком прочитать
+        function toggleReadingListItem(bookId, title) {
+            const index = readingList.findIndex(b => b.id === bookId);
+
+            if (index > -1) {
+                readingList.splice(index, 1);
+            } else {
+                readingList.push({
+                    id: bookId,
+                    title: title,
+                    addedAt: new Date().toISOString()
+                });
+            }
+
+            localStorage.setItem('readingList', JSON.stringify(readingList));
+            updateReadingListButton();
+
+            // Перерисовываем таблицу
+            const event = new Event('submit');
+            form.dispatchEvent(event);
+        }
+
+        function toggleReadingList() {
+            const list = document.getElementById('readingList');
+            list.style.display = list.style.display === 'none' ? 'block' : 'none';
+
+            if (list.style.display === 'block') {
+                updateReadingListContent();
+            }
+        }
+
+        function updateReadingListButton() {
+            const count = readingList.length;
+            document.querySelector('button[onclick="toggleReadingList()"]').textContent =
+                `📖 Мой список (${count})`;
+        }
+
+        function updateReadingListContent() {
+            const content = document.getElementById('readingListContent');
+
+            if (readingList.length === 0) {
+                content.innerHTML = '<p style="color: #999; font-size: 0.9em;">Ваш список пуст</p>';
+            } else {
+                let html = '<ul style="list-style: none; padding: 0;">';
+                readingList.forEach(book => {
+                    html += `
+                        <li style="padding: 8px; border-bottom: 1px solid #eee;">
+                            <div>${book.title}</div>
+                            <button onclick="toggleReadingListItem(${book.id}, '${book.title}')"
+                                    class="btn-secondary" style="font-size: 0.8em; padding: 4px 8px; width: 100%; margin-top: 5px;">
+                                Удалить
+                            </button>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                content.innerHTML = html;
+            }
+        }
+
+        // Сохранение результатов в CSV
+        async function saveToCSV() {
+            if (currentRecommendations.length === 0) {
+                alert('Нет рекомендаций для сохранения');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/save-recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ recommendations: currentRecommendations })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert('Ошибка: ' + data.error);
+                    return;
+                }
+
+                // Скачиваем файл
+                const blob = new Blob([data.csv_data], { type: 'text/csv; charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', data.filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                alert('Ошибка при сохранении: ' + error.message);
+            }
+        }
+
+        function shareResults() {
+            const text = `Я нашел ${currentRecommendations.length} отличных книг в рекомендательной системе! Попробуй сам: ${window.location.href}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Рекомендации книг',
+                    text: text
+                });
+            } else {
+                prompt('Скопируйте ссылку:', text);
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            updateReadingListButton();
+        });
+    </script>
+</body>
+</html>
